@@ -10,7 +10,7 @@ st.set_page_config(
     page_icon="🪄",
 )
 
-st.write("# Welcome to my website")
+st.write("# dbt models by layer")
 st.write(
     "This page tries to see how well we can guess model layers based on naming conventions and filepaths"
 )
@@ -54,7 +54,9 @@ records = []
 
 
 def get_layer(string_list):
-    if "stg" in string_list or "staging" in string_list:
+    if "base" in string_list:
+        return "base"
+    elif "stg" in string_list or "staging" in string_list:
         return "staging"
     elif "int" in string_list or "intermediate" in string_list:
         return "intermediate"
@@ -94,6 +96,14 @@ for model in lineage.environment.applied.lineage:
             "layer_by_both": layer_by_both,
         }
     )
+
+
+numerator = results.get(layer_option).get("other")
+denominator = sum(results.get(layer_option).values())
+st.write(
+    f"**Percentage of models categorized:** {100 - round(numerator/denominator*100, 2)}% ({denominator - numerator} / {denominator})"
+)
+
 
 if rollup == "summary":
     st.dataframe(results.get(layer_option))
